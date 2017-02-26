@@ -25,6 +25,34 @@
   //
   // Get user elements we need
   //
+  function hasAttribute(el, name) {
+      var atr=el.getAttribute(name);
+      return atr!=null && atr!='';
+  }
+
+  var theme='spacelab', title='', menu='';
+  var el = document.getElementsByTagName('title')[0];
+  if(el) title=el.innerHTML;
+  el = document.getElementById('page-params');
+  if(el) {
+      if(hasAttribute(el,'theme')) theme=el.getAttribute('theme');
+      if(hasAttribute(el,'title')) title=el.getAttribute('title');
+      if(hasAttribute(el,'menu-html')) menu=el.getAttribute('menu-html');
+      if(hasAttribute(el,'menu')){
+	  var text=el.getAttribute('menu');
+	  var act=el.getAttribute('active');
+	  var root=el.getAttribute('root');
+	  if (!root) root='';
+	  var s=text.split(',');
+	  for (i=0,j=s.length/2;i<j;i++) 
+	      menu+='<li'+(act==i+1?' class="active"':'')+'><a href="'+root+s[2*i+1]+'">'+s[2*i]+'</a></li>';
+      }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  //
+  // Get user elements we need
+  //
   var markdownEl = document.getElementsByTagName('xmp')[0] || document.getElementsByTagName('textarea')[0],
       titleEl = document.getElementsByTagName('title')[0],
       navbarEl = document.getElementsByClassName('navbar')[0];
@@ -135,88 +163,26 @@
   document.body.replaceChild(newNode, markdownEl);
 
   // Insert navbar if there's none
-  var newNode = document.createElement('div');
-  newNode.className = 'navbar navbar-default navbar-fixed-top';
-  newNode.className += markdownEl.getAttribute('edit') ? " edit" : '';
-  newNode.className += markdownEl.getAttribute('history') ? " history" : '';
-  if (!navbarEl && titleEl) {
-    newNode.innerHTML = '<div class="container">'+
-                          '<div class="navbar-header">'+
-                            '<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#main-nav" aria-expand="false">'+
-                              '<span class="icon-bar"></span>'+
-                              '<span class="icon-bar"></span>'+
-                              '<span class="icon-bar"></span>'+
-                            '</button>'+
-                            '<div class="navbar-brand" id="headline">Wiki</div>'+
-                          '</div>'+
-                          '<div class="collapse navbar-collapse">'+
-                            '<ul class="nav navbar-nav navbar-right">'+
-                              (window.location.pathname != "/" ? '<li class="gohome-link"><a href="/">Go Home</a></li>' : '')+
-                              '<li class="history-link"><a href="?history">History</a></li>'+
-                              '<li class="edit-link"><a href="?edit">Edit</a></li>'+
-                              '<li class="dropdown">'+
-                                '<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Themes <span class="caret"></span></a>'+
-                                '<ul class="dropdown-menu" id="theme">'+
-                                '</ul>'+
-                              '</li>'+
-                            '</ul>'+
-                          '</div>'+
-                        '</div>';
-    document.body.insertBefore(newNode, document.body.firstChild);
-    var title = titleEl.innerHTML;
-    var headlineEl = document.getElementById('headline');
-    if (headlineEl) {
-      headlineEl.innerHTML = title;
-    }
-
-    var themeEl = document.getElementById('theme');
-    if (themeEl) {
-      var themes = ['Chaitin', "Cerulean", "Cosmo", "Cyborg", "Darkly", "Flatly", "Journal", "Lumen", "Paper", "Readable", "Sandstone", "Simplex", "Slate", "Spacelab", "Superhero", "United", "Yeti"];
-      themes.forEach(function(val) {
-        if (val == 'Reset') {
-          var dvd = document.createElement("li");
-          dvd.setAttribute("class", "divider");
-          themeEl.appendChild(dvd);
-        }
-        var li = document.createElement("li");
-        var a = document.createElement("a");
-        setInnerText(a, val);
-        a.setAttribute('href', '#');
-        li.appendChild(a);
-        if(val.toLowerCase() == theme){
-            li.className = "active"
-        }
-        addEvent(a, 'click', function (e) {
-          var new_theme = val.toLowerCase()
-          upsertTheme(base, new_theme);
-          var actives = document.querySelectorAll("li.active");
-          [].forEach.call(actives, function(ele){
-            ele.className = "";
-          })
-          e.target.parentNode.className = "active";
-          store.set("theme", new_theme);
-        });
-        themeEl.appendChild(li);
-      });
-    }
-    var dropdown = document.getElementsByClassName("dropdown")[0],
-        toggleBtn = document.getElementsByClassName('navbar-toggle')[0],
-        menus = document.getElementsByClassName('navbar-collapse')[0];
-    if (themeEl && dropdown) {
-      addEvent(dropdown, 'click', function () {
-        if (dropdown.className.match(/(?:^|\s)open(?!\S)/)) {
-          dropdown.className = dropdown.className.replace(/(?:^|\s)open(?!\S)/g, '');
-        } else {
-          dropdown.className += " open";
-        }
-      });
-      addEvent(toggleBtn, 'click', function(){
-        var classList = menus.className.split(' ');
-        classList.indexOf('collapse') > -1 ? classList.splice(classList.indexOf('collapse') ,1) : classList.push('collapse');
-        menus.className = classList.join(' ');
-      });
-    }
-  }
+  // skm 2014.
+  // title and menu can be changed later:
+  // var menulineEl = document.getElementById('menuline');
+  // menulineEl.innerHTML = 'some text';
+  if (!navbarEl) {
+      var newNode = document.createElement('div');
+      newNode.className = 'navbar navbar-default navbar-fixed-top';
+      document.body.insertBefore(newNode, document.body.firstChild);
+      newNode.innerHTML =
+	  '<div class="container">'+
+	  '<div class="navbar-header">'+
+	  '<div id="title-line-nav" class="navbar-brand">'+title+'</div>'+
+	  '<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">'+
+	  '<span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>'+
+	  '</div>'+  
+	  '<div id="navbar-main" class="navbar-collapse collapse" style="height: 1px;">'+
+	  '<ul id="menu-line-nav" class="nav navbar-nav">'+menu+'</ul>'+
+	  '</div>'+
+	  '</div>';
+  }  
   
   var  heading_number = markdownEl.getAttribute("heading_number"),
       show_toc = markdownEl.getAttribute("toc");
