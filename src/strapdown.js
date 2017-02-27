@@ -192,12 +192,12 @@
   var footer = document.getElementsByTagName("footer")[0];
   if(footer){
     if (footer.className.indexOf("footer") < 0){
-      footer.innerHTML += '<div>Powered By: <a href="//github.com/chaitin/strapdown-zeta">Strapdown-Zeta</a></div>';
+      footer.innerHTML += '<div>Adapted from <a href="https://github.com/chaitin/strapdown-zeta">Strapdown-Zeta</a> and <a href="https://github.com/smzg/strapdown">strapdown+navigation</a></div>';
       footer.className = "footer container"
     }
   }else{
     footer = document.createElement("footer")
-    footer.innerHTML = '<div>Powered By: <a href="//github.com/chaitin/strapdown-zeta">Strapdown-Zeta</a></div>';
+    footer.innerHTML += '<div>Adapted from <a href="https://github.com/chaitin/strapdown-zeta">Strapdown-Zeta</a> and <a href="https://github.com/smzg/strapdown">strapdown+navigation</a></div>';
     footer.className = "footer container";
     document.body.appendChild(footer)
   }
